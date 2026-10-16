@@ -1,0 +1,45 @@
+ufo_mcp:
+    enabled: true # or '%env(bool:MCP_ENABLED)%'
+
+    # No "server_name"/"server_version": identity comes only from mcp_server_info
+    # below. "version" is never configurable anywhere here — it's always the actual
+    # "{ver}" route segment of the request (/mcp, /mcp/v2, ... default v1).
+    instructions: ~
+
+    max_body_bytes: 4194304
+    session_directory: '%kernel.cache_dir%/ufo_mcp_sessions'
+    session_ttl: 3600 # seconds a legacy (pre-2026-07-28) MCP session stays valid
+
+    # Defaults for the MCP Registry server.json served at GET /server.json.
+    mcp_server_info:
+        name: 'io.github.your-org/your-app'          # reverse-DNS id, see https://registry.modelcontextprotocol.io
+        title: 'Your App MCP Server'
+        description: 'Exposes Your App RPC services as MCP tools.'
+        icons:
+            - src: 'https://example.com/icon.png'
+              mime_type: 'image/png'
+              sizes: ['128x128']
+              theme: ~
+
+    # One entry per MCP mount; each key must match the "api_group" default set in
+    # this app's own route import (see install/routes/ufo_mcp.yaml). Every field
+    # above (enabled, instructions, max_body_bytes, session_directory, session_ttl,
+    # mcp_server_info) is overridable per group; unset fields inherit it.
+    groups:
+        mcp:
+            enabled: ~
+            instructions: ~
+            max_body_bytes: ~
+            session_directory: ~
+            session_ttl: ~
+            mcp_server_info:
+                name: ~
+                title: ~
+                description: ~
+                icons: []
+
+        internal:
+            enabled: false
+            mcp_server_info:
+                name: 'io.github.your-org/your-app-internal'
+                description: 'Internal-only MCP server — not meant for the public registry.'
