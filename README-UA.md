@@ -78,7 +78,7 @@ composer require ufo-tech/mcp-bundle
 
 ## Документація
 
-Встановлення, налаштування і як працює бандл: [документація MCP Bundle](http://localhost/uk/docs/api/mcp-bundle).
+Встановлення, налаштування і як працює бандл: [документація MCP Bundle](https://ufo-tech.space/uk/docs/api/mcp-bundle).
 
 ## Розробка
 

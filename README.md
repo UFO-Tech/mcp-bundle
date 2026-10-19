@@ -78,7 +78,7 @@ All versions with what was added and how to use it: [releases](releases/README.m
 
 ## Documentation
 
-Installation, configuration and how the bundle works: [MCP Bundle documentation](http://localhost/uk/docs/api/mcp-bundle).
+Installation, configuration and how the bundle works: [MCP Bundle documentation](https://ufo-tech.space/en/docs/api/mcp-bundle).
 
 ## Development
 
