@@ -13,7 +13,7 @@ use function array_map;
  * Ufo\McpBundle\ClientManifest). Built once for the bundle-wide defaults and once per
  * group for its override (ufo_mcp.groups.<name>.mcp_server_info), then merged via
  * overriding(). There is deliberately no "version" field here: wherever a version is
- * needed (Ufo\McpBundle\Services\McpServerFactory, ServerJsonAdapter), it is always the
+ * needed (Ufo\McpBundle\Server\McpServerFactory, ServerJsonAdapter), it is always the
  * request's actual resolved API version (the "{ver}" route segment), never a static
  * config value that could drift from what the server is really serving.
  */

@@ -1,0 +1,21 @@
+# The same imports a consuming app makes (install/routes/ufo_mcp.yaml), one per MCP group.
+mcp:
+    resource: ../../../config/router.yaml
+    prefix: /mcp
+    defaults: { api_group: mcp }
+internal:
+    resource: ../../../config/router.yaml
+    prefix: /mcp/internal
+    defaults: { api_group: internal }
+off:
+    resource: ../../../config/router.yaml
+    prefix: /mcp/off
+    defaults: { api_group: 'off' }
+bad:
+    resource: ../../../config/router.yaml
+    prefix: /mcp/bad
+    defaults: { api_group: bad }
+empty:
+    resource: ../../../config/router.yaml
+    prefix: /mcp/empty
+    defaults: { api_group: empty }

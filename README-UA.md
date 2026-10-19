@@ -1,108 +1,91 @@
 # UFO MCP Bundle
+![Ukraine](https://img.shields.io/badge/Glory-Ukraine-yellow?labelColor=blue)
+![License](https://img.shields.io/badge/license-MIT-green?labelColor=7b8185)
 
-Окремий Symfony-бандл, який відкриває наявні UFO JSON-RPC методи як MCP tools.
-Архітектура аналогічна rest-bundle: адаптер використовує ServiceMap та
-RpcRequestHandler, зберігаючи валідацію, DTO-конвертацію, кеш і події RPC.
+[English](README.md)
 
-Потрібні PHP >= 8.4 та json-rpc-bundle ^10.2. Протокол і Streamable HTTP
-реалізує офіційний mcp/sdk ^0.8.1. Підтримуються клієнти з initialize/сесіями
-та stateless MCP 2026-07-28.
+MCP-сервер (Model Context Protocol) для [`ufo-tech/json-rpc-bundle`](https://github.com/UFO-Tech/json-rpc-bundle):
+методи вашого JSON-RPC API стають tools, які AI-агенти — Claude Code, Cursor, Gemini CLI, OpenAI — викликають через
+Streamable HTTP. Як і `ufo-tech/rest-bundle`, це тонкий адаптер: бізнес-логіка лишається в RPC-сервісах, а кожен виклик
+tool проходить через JSON-RPC bundle без змін.
 
-## Підключення
+Потрібні PHP 8.4+, Symfony 7.2+ / 8, `ufo-tech/json-rpc-bundle` ^10.4.3, офіційний
+[`mcp/sdk`](https://github.com/modelcontextprotocol/php-sdk) ^0.8.1.
 
-До публікації пакета додайте Composer path repository на цей checkout та
-встановіть `ufo-tech/mcp-bundle:@dev`. Після публікації:
-
-```sh
+```bash
 composer require ufo-tech/mcp-bundle
 ```
 
-У config/bundles.php додайте:
+## Швидкий старт
 
-```php
-Ufo\McpBundle\UfoMcpBundle::class => ['all' => true],
-```
+1. Зареєструйте бандл у `config/bundles.php`:
 
-Скопіюйте install/packages/ufo_mcp.yaml та install/routes/ufo_mcp.yaml у
-відповідні директорії config застосунку. Автоматичного Flex recipe поки немає.
+   ```php
+   Ufo\McpBundle\UfoMcpBundle::class => ['all' => true],
+   ```
 
-```yaml
-ufo_mcp:
-    path: /mcp
-    api_group: general
-    api_version: v1
-    methods: [catalog.search, catalog.get]
-    allowed_hosts: [api.example.com]
-```
+2. Скопіюйте `install/packages/ufo_mcp.yaml` у `config/packages/`, а `install/routes/ufo_mcp.yaml` — у `config/routes/`.
+   Один імпорт маршрутів — один MCP-ендпоінт, що обслуговує одну групу API:
 
-Непорожній methods визначає точний список відкритих RPC-методів. Якщо список
-порожній, відкриваються лише методи з атрибутом:
+   ```yaml
+   # config/routes/ufo_mcp.yaml
+   ufo_mcp:
+       resource: ../../vendor/ufo-tech/mcp-bundle/config/router.yaml
+       prefix: /mcp
+       defaults: { api_group: mcp }
+   ```
 
-```php
-use Ufo\McpBundle\Attribute\McpTool;
+3. Додайте RPC-методи в цю групу:
 
-#[McpTool(description: 'Пошук товарів за назвою.', readOnlyHint: true)]
-public function search(string $query, int $limit = 10): array
-{
-    // Наявна бізнес-логіка.
-}
-```
+   ```php
+   use Ufo\McpBundle\Attribute\McpTool;
+   use Ufo\RpcObject\RPC;
 
-Атрибут підтримує name, title, description, readOnlyHint, destructiveHint,
-idempotentHint та openWorldHint. Список methods використовує RPC-назви,
-навіть якщо атрибут задає іншу MCP-назву. Колізії та некоректні назви
-відхиляються. Схеми параметрів, DTO, enum, required та default беруться
-з метаданих RPC; посилання на схеми перетворюються на локальні $defs.
-Наявні атрибути конвертації RPC, зокрема RPC\Param для enum, залишаються потрібними.
+   #[RPC\APIGroups(['mcp'], withDefault: false)]
+   class CatalogProcedure implements IRpcService
+   {
+       /** Search products by name. */
+       #[McpTool(readOnlyHint: true)]
+       public function search(string $query, int $limit = 10): array { /* ... */ }
+   }
+   ```
 
-## Доступ і результати
+4. Підключіть клієнта: `GET /mcp/manifest/claude.json` (або `cursor`, `gemini`, `openai`) повертає готовий конфіг;
+   токен — RPC-токен JSON-RPC bundle (заголовок `Ufo-RPC-Token`).
 
-На кожному запиті, окрім CORS preflight, перевіряється наявний IRpcSecurity:
-токен API, protected_api та провайдер відповідної API-групи. Для захищеного
-endpoint увімкніть ufo_json_rpc.security.protected_api. Заголовок за
-замовчуванням — Ufo-RPC-Token. Власний OAuth-сервер та OAuth discovery
-цей пакет не надає; це потрібно врахувати для клієнтів, які вимагають OAuth.
+## Можливості
 
-allowed_hosts задає допустимі Host/Origin hostname, allowed_origins — повні
-Origin URL для CORS. За замовчуванням дозволені лише loopback hosts,
-браузерний CORS вимкнений. Для браузерного клієнта налаштуйте обидва списки.
+- **Що стає tool — визначає група API.** Кожен метод групи — tool з назвою RPC-методу; кілька ендпоінтів
+  (`/mcp`, `/mcp/internal`, …) поруч, кожен зі своїми методами — [налаштування](docs/configuration-UA.md)
+- **Версії API.** `/mcp/v2` обслуговує версію 2 групи — [налаштування](docs/configuration-UA.md)
+- **Роботу робить core.** Виклик tool — це RPC-запит: перетворення параметрів, DTO, валідація, кеш, блокування,
+  RPC-події й помилки як у `/rpc` — [tools](docs/tools-UA.md)
+- **Схеми й тексти для агентів.** `inputSchema` / `outputSchema` з RPC-метаданих; назви й описи з перекладів core за
+  `Accept-Language`, зокрема для окремої групи; підказки `#[McpTool]` — [tools](docs/tools-UA.md)
+- **Обидві епохи протоколу MCP.** Із сесіями (сесії в кеш-пулі core) і stateless 2026-07-28 на одному URL —
+  [HTTP](docs/http-and-security-UA.md)
+- **Та сама безпека.** RPC-токени core (401/403), 404 для вимкненої групи чи відсутньої версії, CORS і захист від DNS
+  rebinding, ліміт тіла запиту — [безпека](docs/http-and-security-UA.md)
+- **Discovery.** `server.json` для MCP Registry і маніфести клієнтів — [документи](docs/discovery-UA.md)
+- **Розширюваність.** Перевірка доступності, політика доступу, власні маніфести клієнтів — [розширення](docs/extending-UA.md)
 
-Успішний виклик повертає JSON у text content та structuredContent з об'єктом
-{"result": ...}. Помилка виконання повертається з isError: true. Виклики
-синхронні; async/callback керування RPC, resources та prompts не експортуються.
+Не підтримується: OAuth, MCP resources і prompts, повідомлення з ініціативи сервера. Див.
+[обмеження](docs/README-UA.md).
 
-Сесії старіших клієнтів зберігаються у session_directory
-(типово %kernel.cache_dir%/ufo_mcp_sessions), session_ttl — 3600 секунд.
-Кілька worker-процесів мають використовувати спільну директорію, кілька
-серверів — спільний volume або власну фабрику сервера. Для stateless-клієнтів
-сесії не потрібні. Ліміт тіла запиту max_body_bytes — 4 MiB.
-enabled: false прибирає MCP route.
+## Опис релізів
 
-## Конектор і плагін
+Усі версії, що додано і як цим користуватися: [releases](releases/README-UA.md). Остання: [1.0](releases/1.x/1.0/README-UA.md).
 
-Готовий шаблон Claude Code плагіна — install/claude-code-plugin. Він містить
-manifest і MCP-конфігурацію без секретів. Задайте змінні оточення перед
-запуском клієнта:
+## Документація
 
-```sh
-export UFO_MCP_URL=https://api.example.com/mcp
-export UFO_MCP_TOKEN=your-api-token
-claude --plugin-dir ./vendor/ufo-tech/mcp-bundle/install/claude-code-plugin
-```
+Встановлення, налаштування і як працює бандл: [документація MCP Bundle](http://localhost/uk/docs/api/mcp-bundle).
 
-Цю директорію можна скопіювати та адаптувати для власного API. Для прямого
-підключення Claude Code використайте її .mcp.json; для Cursor —
-install/clients/cursor.json. Якщо змінено token_name, змініть заголовок у
-клієнтській конфігурації. Клієнти використовують один і той самий MCP endpoint.
+## Розробка
 
-Повна конфігурація й деталі — у [README англійською](README.md).
-
-## Перевірка
+PHP працює в Docker (`ufotech/php:8.4-fpm`):
 
 ```sh
-composer install
-vendor/bin/phpunit
+make up-d              # запустити контейнер
+make composer-install
+make test              # юніт-, функціональні й наскрізні тести
 ```
-
-Інтеграційні тести запускають Symfony kernel із JSON-RPC бандлом та
-виконують справжні MCP HTTP-запити через SDK і RPC pipeline.

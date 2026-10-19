@@ -13,7 +13,7 @@ interface McpAccessPolicyInterface
 {
     /**
      * @return string[] Hostnames accepted by DnsRebindingProtectionMiddleware. An empty
-     *                   array means "no restriction" — Ufo\McpBundle\Services\McpTransportFactory
+     *                   array means "no restriction" — Ufo\McpBundle\Server\Transport\StreamableHttpTransportFactory
      *                   then omits that middleware entirely, since the middleware's own
      *                   allowlist check has no wildcard and would otherwise reject every
      *                   request with a Host/Origin header.

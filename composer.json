@@ -8,8 +8,9 @@
     "require": {
         "php": ">=8.4",
         "mcp/sdk": "^0.8.1",
-        "ufo-tech/json-rpc-bundle": "^10.2",
+        "ufo-tech/json-rpc-bundle": "^10.4.3",
         "symfony/psr-http-message-bridge": "^7.2 || ^8.0",
+        "symfony/yaml": "^7.2 || ^8.0",
         "nyholm/psr7": "^1.8"
     },
     "require-dev": {

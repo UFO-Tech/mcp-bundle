@@ -1,15 +1,18 @@
 # config/routes/ufo_mcp.yaml
 #
 # One import per MCP "mount" — same pattern ufo-tech/rest-bundle uses for its own
-# internal/public/second mounts. Each import's "api_group" default must match a key
-# under ufo_mcp.groups in config/packages/ufo_mcp.yaml. "name_prefix" keeps route
-# names from colliding when the same router.yaml is imported more than once.
+# internal/public/second mounts. Each import's "api_group" default is the MCP group;
+# an entry under ufo_mcp.groups (config/packages/ufo_mcp.yaml) is optional and only
+# overrides the bundle-wide settings for that group. Route names get the group
+# automatically ("mcp_ufo_mcp_endpoint", "internal_ufo_mcp_endpoint", ...; see
+# Ufo\McpBundle\Routing\McpRouteImport), so the same router.yaml can be imported
+# once per group without "name_prefix".
 ufo_mcp:
     resource: ../../vendor/ufo-tech/mcp-bundle/config/router.yaml
     prefix: /mcp
     defaults: { api_group: mcp }
 
-#    ufo_mcp_internal:
-#        resource: ../../vendor/ufo-tech/mcp-bundle/config/router.yaml
-#        prefix: /mcp/internal
-#        defaults: { api_group: mcp_internal }
+#ufo_mcp_internal:
+#    resource: ../../vendor/ufo-tech/mcp-bundle/config/router.yaml
+#    prefix: /mcp/internal
+#    defaults: { api_group: mcp_internal }

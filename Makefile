@@ -1,4 +1,4 @@
-.PHONY: up up-d up-b up-r down composer composer-install composer-update run cache-clear setup commit-a
+.PHONY: up up-d up-b up-r down composer composer-install composer-update run cache-clear setup commit-a test
 
 setup:
 	@test -f .env || cp .env.dist .env
@@ -59,6 +59,10 @@ commit-a:
 	git push origin :refs/tags/$$TAG; \
 	git tag $$TAG; \
 	git push origin $$TAG
+
+# Tests: make test, make test ARGS="--testsuite Unit"
+test: setup
+	$(DOCKER_EXEC) "vendor/bin/phpunit $(ARGS)"
 
 # Application Specific Commands
 console: setup

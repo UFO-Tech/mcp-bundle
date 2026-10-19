@@ -14,7 +14,7 @@ namespace Ufo\McpBundle\ConfigService;
  * There is deliberately no "api_version" here: which RPC service-map version a given
  * request serves comes from the "{ver}" route segment (default "v1"), the same role it
  * plays in rest-bundle/json-rpc-bundle — see Ufo\McpBundle\Controller\McpController.
- * Callers that need "the version this request is on" (Ufo\McpBundle\Services\McpServerFactory,
+ * Callers that need "the version this request is on" (Ufo\McpBundle\Server\McpServerFactory,
  * Ufo\McpBundle\DocAdapters\Outputs\ServerJsonAdapter) take it as a parameter instead.
  *
  * Every field left unset in this group's own config falls back to $base (the bundle-wide
@@ -28,8 +28,6 @@ final readonly class McpGroupConfig
 
     public int $maxBodyBytes;
 
-    public string $sessionDirectory;
-
     public int $sessionTtl;
 
     /** This group's server.json info: its own "mcp_server_info" overrides layered on top of the bundle-wide default. Carries no "version" at all — see McpServerInfoConfig. */
@@ -40,8 +38,7 @@ final readonly class McpGroupConfig
         $this->enabled = $config['enabled'] ?? $base->enabled;
         $this->instructions = $config['instructions'] ?? $base->instructions;
         $this->maxBodyBytes = $config['max_body_bytes'] ?? $base->maxBodyBytes;
-        $this->sessionDirectory = $config['session_directory'] ?? $base->sessionDirectory;
         $this->sessionTtl = $config['session_ttl'] ?? $base->sessionTtl;
-        $this->serverInfo = McpServerInfoConfig::fromConfig($config['mcp_server_info'])->overriding($base->serverInfo);
+        $this->serverInfo = McpServerInfoConfig::fromConfig($config['mcp_server_info'] ?? [])->overriding($base->serverInfo);
     }
 }

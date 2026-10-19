@@ -11,3 +11,6 @@
 .phpunit.cache
 ###< phpunit/phpunit ###
 /RESUME.MD
+
+# Discussion notes (local only)
+/.features/

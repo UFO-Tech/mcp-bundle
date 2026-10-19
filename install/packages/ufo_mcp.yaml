@@ -7,8 +7,9 @@ ufo_mcp:
     instructions: ~
 
     max_body_bytes: 4194304
-    session_directory: '%kernel.cache_dir%/ufo_mcp_sessions'
-    session_ttl: 3600 # seconds a legacy (pre-2026-07-28) MCP session stays valid
+    # Legacy (pre-2026-07-28) MCP sessions live in the json-rpc-bundle cache pool
+    # (ufo_json_rpc.cache.pool) — point it at a shared store (e.g. Redis) for several hosts.
+    session_ttl: 3600 # seconds a legacy MCP session stays valid
 
     # Defaults for the MCP Registry server.json served at GET /server.json.
     mcp_server_info:
@@ -21,25 +22,25 @@ ufo_mcp:
               sizes: ['128x128']
               theme: ~
 
-    # One entry per MCP mount; each key must match the "api_group" default set in
-    # this app's own route import (see install/routes/ufo_mcp.yaml). Every field
-    # above (enabled, instructions, max_body_bytes, session_directory, session_ttl,
-    # mcp_server_info) is overridable per group; unset fields inherit it.
-    groups:
-        mcp:
-            enabled: ~
-            instructions: ~
-            max_body_bytes: ~
-            session_directory: ~
-            session_ttl: ~
-            mcp_server_info:
-                name: ~
-                title: ~
-                description: ~
-                icons: []
-
-        internal:
-            enabled: false
-            mcp_server_info:
-                name: 'io.github.your-org/your-app-internal'
-                description: 'Internal-only MCP server — not meant for the public registry.'
+    # Optional per-group overrides. The group itself comes from the "api_group" default
+    # of the route import (see install/routes/ufo_mcp.yaml); a group with no entry here
+    # runs on the settings above. Every field above (enabled, instructions,
+    # max_body_bytes, session_ttl, mcp_server_info) is overridable per group; unset
+    # fields inherit it.
+#    groups:
+#        mcp:
+#            enabled: ~
+#            instructions: ~
+#            max_body_bytes: ~
+#            session_ttl: ~
+#            mcp_server_info:
+#                name: ~
+#                title: ~
+#                description: ~
+#                icons: []
+#
+#        mcp_internal:
+#            enabled: false
+#            mcp_server_info:
+#                name: 'io.github.your-org/your-app-internal'
+#                description: 'Internal-only MCP server — not meant for the public registry.'

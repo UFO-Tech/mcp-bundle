@@ -10,10 +10,6 @@ use function array_filter;
 use function array_map;
 use function parse_url;
 
-use const PHP_URL_HOST;
-use const PHP_URL_PORT;
-use const PHP_URL_SCHEME;
-
 /**
  * Builds an MCP Registry server.json document for one configured group — the same
  * role OpenRpcAdapter/PostmanAdapter play for the core json-rpc-bundle, but for a
@@ -65,6 +61,6 @@ final class ServerJsonAdapter
             return null;
         }
 
-        return $scheme.'://'.$host.($urlParts['port'] ? ':'.$urlParts['port'] : '');
+        return $scheme.'://'.$host.(isset($urlParts['port']) ? ':'.$urlParts['port'] : '');
     }
 }

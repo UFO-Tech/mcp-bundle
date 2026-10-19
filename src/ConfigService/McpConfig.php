@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Ufo\McpBundle\ConfigService;
 
-use LogicException;
-
 /** Typed representation of the processed "ufo_mcp" config, mirroring the role of Ufo\JsonRpcBundle\ConfigService\RpcMainConfig for this bundle's own options. */
 final readonly class McpConfig
 {
@@ -14,8 +12,6 @@ final readonly class McpConfig
     public ?string $instructions;
 
     public int $maxBodyBytes;
-
-    public string $sessionDirectory;
 
     public int $sessionTtl;
 
@@ -37,7 +33,6 @@ final readonly class McpConfig
         $this->enabled = $options['enabled'];
         $this->instructions = $options['instructions'];
         $this->maxBodyBytes = $options['max_body_bytes'];
-        $this->sessionDirectory = $options['session_directory'];
         $this->sessionTtl = $options['session_ttl'];
 
         $this->serverInfo = McpServerInfoConfig::fromConfig($options['mcp_server_info']);
@@ -49,9 +44,9 @@ final readonly class McpConfig
         $this->groups = $groups;
     }
 
+    /** The group comes from the route's "api_group"; an entry under "ufo_mcp.groups" is optional and only overrides the bundle-wide settings. */
     public function group(string $name): McpGroupConfig
     {
-        return $this->groups[$name]
-            ?? throw new LogicException(sprintf('MCP group "%s" is not configured under "ufo_mcp.groups".', $name));
+        return $this->groups[$name] ?? new McpGroupConfig($name, [], $this);
     }
 }

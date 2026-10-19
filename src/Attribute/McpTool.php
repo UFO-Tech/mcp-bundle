@@ -7,9 +7,11 @@ namespace Ufo\McpBundle\Attribute;
 use Attribute;
 
 /**
- * Marks an RPC method as an MCP tool. The tool's MCP name is always the RPC method's
- * own name (no separate alias here — see docs/ for overriding the public name/title/
- * description via translations instead). Each hint is a tri-state (true/false/null
+ * MCP ToolAnnotations hints for an RPC method. It does not decide exposure: every RPC
+ * method of the API group an MCP endpoint serves is a tool, named after the RPC method.
+ * Title/description come from the core RPC translations (translations/rpc.<locale>.yaml,
+ * per group translations/rpc/<group>.<locale>.yaml), falling back to #[RPC\Info]/PHPDoc.
+ * Each hint is a tri-state (true/false/null
  * "unspecified") per the MCP ToolAnnotations spec, which is why these stay plain
  * nullable booleans rather than a bitmask: a bitmask can't tell "false" apart from
  * "not specified" without doubling its bits.
