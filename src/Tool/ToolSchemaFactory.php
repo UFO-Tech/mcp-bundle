@@ -6,7 +6,7 @@ namespace Ufo\McpBundle\Tool;
 
 use Mcp\Schema\Tool;
 use Mcp\Schema\ToolAnnotations;
-use Ufo\DTO\Helpers\TypeHintResolver as T;
+use Ufo\DTO\Schema\Type\TypeHintResolver as T;
 use Ufo\JsonRpcBundle\DocAdapters\Traits\JsonSchemaDtoFormatTrait;
 use Ufo\JsonRpcBundle\ParamConvertors\ChainParamConvertor;
 use Ufo\JsonRpcBundle\Server\ApiGroupContext;
